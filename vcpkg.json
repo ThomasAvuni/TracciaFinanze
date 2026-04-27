@@ -1,0 +1,8 @@
+{
+  "name": "traccia-finanze",
+  "version-string": "0.1.0",
+  "dependencies": [
+    "nlohmann-json",
+    "sdl2"
+  ]
+}

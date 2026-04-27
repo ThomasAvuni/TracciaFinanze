@@ -28,10 +28,11 @@ set(IMGUI_SOURCES
         Core/base.h
         Core/Components/AddExpenseComponent.cpp
         Core/Components/AddExpenseComponent.h
-        Core/ExpencesManager.cpp
-        Core/ExpencesManager.h
+        Core/ExpensesManager.cpp
+        Core/ExpensesManager.h
         Core/ImGuiLayer.cpp
         Core/ImGuiLayer.h
+        Core/Theme.h
 )
 
 add_executable(TracciaFinanze

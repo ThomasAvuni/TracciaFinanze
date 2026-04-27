@@ -4,14 +4,16 @@
 #include "Window.h"
 
 #include <print>
+#include <utility>
 #include <SDL.h>
 #include "imgui.h"
 #include "imgui_impl_sdl2.h"
 #include "imgui_impl_opengl3.h"
+#include "Theme.h"
 
 Window::Window(const std::string& WindowName, int Width, int Height, bool EnableVSync) : m_WindowName(WindowName), m_Width(Width),
-                                                                       m_Height(Height), m_pWindowHandle(nullptr),
-                                                                       m_GLContext(nullptr) {
+                                                                                         m_Height(Height), m_pWindowHandle(nullptr),
+                                                                                         m_GLContext(nullptr) {
     InitSDL();
     SetVSyncEnabled(EnableVSync);
     InitImGui();
@@ -54,6 +56,8 @@ void Window::InitImGui() {
         style.WindowRounding = 0.0f;
         style.Colors[ImGuiCol_WindowBg].w = 1.0f;
     }
+
+    ApplyTheme();
 
     ImGui_ImplSDL2_InitForOpenGL(m_pWindowHandle, m_GLContext);
     ImGui_ImplOpenGL3_Init("#version 130");

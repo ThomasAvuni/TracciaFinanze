@@ -15,8 +15,7 @@ void ExpensesView::OnUIUpdate() {
     Component::OnUIUpdate();
 
     ImGuiDraw("Vista Spese", [this] {
-        std::vector<Expense> expenses = m_ExpenseManager->LoadFromJSON();
-        for (const Expense& e : expenses)
+        for (const std::vector<Expense> expenses = m_ExpenseManager->LoadFromJSON(); const Expense& e : expenses)
         {
             SingleExpenseView sev(e);
             sev.Draw();

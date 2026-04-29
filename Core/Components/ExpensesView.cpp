@@ -4,6 +4,7 @@
 
 #include "ExpensesView.h"
 
+#include "SingleExpenseView.h"
 #include "../ExpensesManager.h"
 
 ExpensesView::ExpensesView() {
@@ -14,8 +15,11 @@ void ExpensesView::OnUIUpdate() {
     Component::OnUIUpdate();
 
     ImGuiDraw("Vista Spese", [this] {
-        auto a = m_ExpenseManager->LoadFromJSON();
-        std::string s = a[0].ExpenseName;
-        ImGui::Text(s.c_str());
+        std::vector<Expense> expenses = m_ExpenseManager->LoadFromJSON();
+        for (const Expense& e : expenses)
+        {
+            SingleExpenseView sev(e);
+            sev.Draw();
+        }
     });
 }

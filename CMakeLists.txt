@@ -33,6 +33,8 @@ set(IMGUI_SOURCES
         Core/ImGuiLayer.cpp
         Core/ImGuiLayer.h
         Core/Theme.h
+        Core/Components/ExpensesView.cpp
+        Core/Components/ExpensesView.h
 )
 
 add_executable(TracciaFinanze

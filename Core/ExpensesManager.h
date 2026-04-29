@@ -1,9 +1,9 @@
-﻿//
+//
 // Created by Thomas on 26/04/2026.
 //
 
-#ifndef TRACCIAFINANZE_EXPENCESMANAGER_H
-#define TRACCIAFINANZE_EXPENCESMANAGER_H
+#ifndef TRACCIAFINANZE_EXPENSESMANAGER_H
+#define TRACCIAFINANZE_EXPENSESMANAGER_H
 #include <filesystem>
 #include <string>
 #include <vector>
@@ -18,14 +18,15 @@ enum ExpenseType{
 struct Expense {
     std::string ExpenseName;
     std::string Location;
+    std::string ThingsBought;
     float Amount;
     int Year, Month, Day;
     ExpenseType Type;
 
     // The compiler needs this to use std::find
     bool operator==(const Expense& other) const {
-        return std::tie(ExpenseName, Location, Amount, Year, Month, Day, Type) ==
-               std::tie(other.ExpenseName, other.Location, other.Amount,
+        return std::tie(ExpenseName, Location, ThingsBought, Amount, Year, Month, Day, Type) ==
+               std::tie(other.ExpenseName, other.Location, other.ThingsBought, other.Amount,
                         other.Year, other.Month, other.Day, other.Type);
     }
 };
@@ -41,11 +42,11 @@ class ExpensesManager {
 public:
     ExpensesManager();
 
-    void AddExpenses(Expense& expense);
+    void AddExpense(Expense& expense);
     void RemoveExpense(const Expense& expense);
 
     void SaveToJSON();
-    void LoadFromJSON();
+    std::vector<Expense> LoadFromJSON();
 
     [[nodiscard]] static ExpensesManager& Get() {return *s_Instance;}
 
@@ -54,8 +55,7 @@ public:
 private:
     static ExpensesManager *s_Instance;
     std::vector<Expense> m_Expenses;
-    unsigned int m_ExpensesCount {};
 };
 
 
-#endif //TRACCIAFINANZE_EXPENCESMANAGER_H
+#endif //TRACCIAFINANZE_EXPENSESMANAGER_H

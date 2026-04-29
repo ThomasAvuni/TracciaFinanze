@@ -1,4 +1,4 @@
-﻿//
+//
 // Created by Thomas on 26/04/2026.
 //
 
@@ -27,10 +27,17 @@ void AddExpenseComponent::OnUIUpdate()
             ImGui::Text("Nome Spesa");
             ImGui::SetNextItemWidth(200);
             ImGui::InputText(" ##NomeSpesa", ExpenseName, sizeof(ExpenseName));
+
             static char LocationName[64];
             ImGui::Text("Nome Location");
             ImGui::SetNextItemWidth(200);
             ImGui::InputText("##NomeLocation", LocationName, sizeof(LocationName));
+
+            static char ThingsBought[64];
+            ImGui::Text("Cose Comprate");
+            ImGui::SetNextItemWidth(200);
+            ImGui::InputText("##ThingsBought", ThingsBought, sizeof(ThingsBought));
+
             static float Amount = 0.f;
             ImGui::Text("Solid Spesi");
             ImGui::SetNextItemWidth(200);
@@ -69,22 +76,24 @@ void AddExpenseComponent::OnUIUpdate()
 
             bool NameEmpty     = strlen(ExpenseName) == 0;
             bool LocationEmpty = strlen(LocationName) == 0;
+            bool ThingsBoughtEmpty = strlen(LocationName) == 0;
             bool AmountInvalid = Amount <= 0.f;
             bool TypeInvalid   = SelectedType == None;
 
             if (NameEmpty)     ImGui::TextColored(ImVec4(1,0.3f,0.3f,1), "* Inserisci un nome spesa");
             if (LocationEmpty) ImGui::TextColored(ImVec4(1,0.3f,0.3f,1), "* Inserisci una location");
+            if (ThingsBoughtEmpty)  ImGui::TextColored(ImVec4(1,0.3f,0.3f,1), "* Inserisci le cose che hai comprato");
             if (AmountInvalid) ImGui::TextColored(ImVec4(1,0.3f,0.3f,1), "* Inserisci un importo valido");
             if (TypeInvalid)   ImGui::TextColored(ImVec4(1,0.3f,0.3f,1), "* Seleziona una categoria");
 
-            bool HasErrors = NameEmpty || LocationEmpty || AmountInvalid || TypeInvalid;
+            bool HasErrors = NameEmpty || LocationEmpty || AmountInvalid || TypeInvalid || ThingsBoughtEmpty;
             if (HasErrors)
                 ImGui::BeginDisabled();
 
-            Expense e{ExpenseName, LocationName, Amount, Year, Month, Day, SelectedType};
+            Expense e{ExpenseName, LocationName, ThingsBought, Amount, Year, Month, Day, SelectedType};
             ImGui::NewLine();
             if (ImGui::Button("Aggiungi", ImVec2(200, 0))) {
-                ExpensesManager::Get().AddExpenses(e);
+                ExpensesManager::Get().AddExpense(e);
                 ExpensesManager::Get().SaveToJSON();
             }
 

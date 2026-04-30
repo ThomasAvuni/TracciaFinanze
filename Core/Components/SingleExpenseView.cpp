@@ -10,42 +10,73 @@ SingleExpenseView::SingleExpenseView(const Expense &expense) : m_Expense(expense
     
 }
 
+const char* GetTypeString(ExpenseType type) {
+    switch (type) {
+    case ExpenseType::Food:       return "Alimentari";
+    case ExpenseType::Cloth:  return "Vestiti";
+    case ExpenseType::Other:      return "Altro";
+    }
+}
+
 void SingleExpenseView::Draw()
 {
-    ImGui::PushID(this);
+    ImGui::PushID(m_Expense.GetUUID().c_str()); 
     
-    ImVec2 p = ImGui::GetCursorScreenPos();
-    ImDrawList *draw_list = ImGui::GetWindowDrawList();
-
-    float rounding = 10.f;
-    ImU32 coloreSfondo = ImGui::GetColorU32(ImGuiCol_ChildBg);
-    ImU32 coloreBordo = ImGui::GetColorU32(ImGuiCol_Border);
+    ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 10.f);
+    ImGui::PushStyleColor(ImGuiCol_ChildBg, ImGui::GetStyleColorVec4(ImGuiCol_FrameBg));
     
-    draw_list->AddRectFilled(p, ImVec2(p.x + 300.f, p.y + 150.f), coloreSfondo, rounding);
-    draw_list->AddRect(p, ImVec2(p.x + 300.f, p.y + 150.f), coloreBordo, rounding);
+    if (ImGui::BeginChild(("ExpenseCard##" + m_Expense.GetUUID()).c_str(), ImVec2(300, 0), ImGuiChildFlags_AutoResizeY)) 
+    {
+        ImGui::SetCursorPos(ImVec2(ImGui::GetCursorPos().x + 10.f, ImGui::GetCursorPos().y + 10.f));
+        
+        ImGui::BeginGroup(); 
+        
+        float contentWidth = ImGui::GetContentRegionAvail().x - 10.f; // Larghezza utile meno margine destro
     
-    ImGui::BeginGroup();
+        ImGui::TextColored(ImVec4(0.4f, 0.8f, 1.0f, 1.0f), "DETTAGLIO");
+        ImGui::SameLine(contentWidth - 75.f);
+        ImGui::TextDisabled("%02d/%02d/%d", m_Expense.Day, m_Expense.Month, m_Expense.Year);
     
-    ImGui::SetCursorScreenPos(ImVec2(p.x + 10, p.y + 20));
-    std::string name = "Nome: " + m_Expense.ExpenseName;
-    ImGui::Text(name.c_str());
+        ImGui::Separator();
     
-    ImGui::SetCursorScreenPos(ImVec2(p.x + 10, p.y + 40));
-    std::string loc = "Posizione: " + m_Expense.Location;
-    ImGui::Text(loc.c_str());
+        ImGui::PushTextWrapPos(ImGui::GetCursorPos().x + contentWidth); 
     
-    ImGui::SetCursorScreenPos(ImVec2(p.x + 10, p.y + 60));
-    std::string thingsBought = "Cosa hai comprato: " + m_Expense.ThingsBought;
-    ImGui::Text(thingsBought.c_str());
-
-    ImGui::SetCursorScreenPos(ImVec2(p.x + 10, p.y + 80));
-    std::string amount = "Hai pagato Euro: " + std::to_string(m_Expense.Amount);
-    ImGui::Text(amount.c_str());
-
-    ImGui::SetCursorScreenPos(ImVec2(p.x + 10, p.y + 100));
-    std::string date = "In data: " + std::to_string(m_Expense.Day) + "/" + std::to_string(m_Expense.Month) + "/" + std::to_string(m_Expense.Year);
-    ImGui::Text(date.c_str());
+        ImGui::Text("Nome: %s", m_Expense.ExpenseName.c_str());
+        
+        ImGui::Text("Categoria: "); ImGui::SameLine();
+        ImGui::TextColored(ImVec4(0.7f, 0.7f, 0.7f, 1.0f), "%s", GetTypeString(m_Expense.Type));
+        
+        ImGui::Text("Posizione: %s", m_Expense.Location.c_str());
+        ImGui::Text("Cosa: %s", m_Expense.ThingsBought.c_str());
     
-    ImGui::EndGroup();
+        ImGui::PopTextWrapPos();
+    
+        ImGui::Spacing();
+        ImGui::Separator();
+        ImGui::Spacing();
+    
+        ImGui::Text("Totale:"); ImGui::SameLine();
+        ImGui::TextColored(ImVec4(0.0f, 1.0f, 0.0f, 1.0f), "%.2f EUR", m_Expense.Amount);
+    
+        ImGui::SameLine(contentWidth - 75.f);
+        
+        ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.6f, 0.1f, 0.1f, 1.0f));
+        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.8f, 0.1f, 0.1f, 1.0f));
+        ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.4f, 0.1f, 0.1f, 1.0f));
+        
+        if (ImGui::Button("Cancella"))
+        {
+            ExpensesManager::Get().RemoveExpense(m_Expense);
+        }
+        ImGui::PopStyleColor(3);
+        
+        ImGui::Spacing();
+        
+        ImGui::EndGroup();
+    }
+    ImGui::EndChild();
+    
+    ImGui::PopStyleColor();
+    ImGui::PopStyleVar();
     ImGui::PopID();
 }

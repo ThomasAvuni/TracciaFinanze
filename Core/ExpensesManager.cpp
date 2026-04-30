@@ -32,8 +32,6 @@ void from_json(const json& j, Expense& e) {
     j.at("Type").get_to(e.Type);
 }
 
-// --- ExpensesManager Implementation ---
-
 ExpensesManager* ExpensesManager::s_Instance = nullptr;
 
 ExpensesManager::ExpensesManager() {
@@ -48,11 +46,13 @@ void ExpensesManager::RemoveExpense(const Expense& expense) {
     auto it = std::find(m_Expenses.begin(), m_Expenses.end(), expense);
     if (it != m_Expenses.end()) {
         m_Expenses.erase(it);
+        SaveToJSON();
     }
 }
 
 void ExpensesManager::SaveToJSON() {
-    std::ofstream file(FilePath.string()); 
+    fs::path filePath = GetDocumentsPath() / "Spese.json";
+    std::ofstream file(filePath); 
 
     if (file.is_open()) {
         json j = m_Expenses; 
@@ -65,7 +65,8 @@ void ExpensesManager::SaveToJSON() {
 
 std::vector<Expense> ExpensesManager::LoadFromJSON()
 {
-    std::ifstream file(FilePath.string());
+    fs::path filePath = GetDocumentsPath() / "Spese.json";
+    std::ifstream file(filePath);
     
     if (!file.is_open()) {
         std::print("Nessun salvataggio trovato o errore nel caricamento\n");
@@ -81,4 +82,23 @@ std::vector<Expense> ExpensesManager::LoadFromJSON()
         std::cout<<"Errore nel parsing json "<< e.what()<<"\n";
         return {};
     }
+}
+
+fs::path ExpensesManager::GetDocumentsPath()
+{
+    std::string home;
+#if WIN32
+    home = std::getenv("USERPROFILE");
+#else
+    home = std::getenv("HOME");
+#endif
+    
+    fs::path docs = fs::path(home) / "Documents";
+    fs::path projectFolder = docs / "TracciaFinanze";
+    if (!fs::exists(projectFolder))
+    {
+        fs::create_directories(projectFolder);
+    }
+    
+    return projectFolder;
 }

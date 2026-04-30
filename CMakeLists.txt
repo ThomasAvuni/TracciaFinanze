@@ -1,29 +1,42 @@
 ﻿cmake_minimum_required(VERSION 3.22)
 
-# Forza il toolchain PRIMA di project
-set(VCPKG_MANIFEST_MODE OFF)
-set(CMAKE_TOOLCHAIN_FILE "$ENV{HOME}/dev/vcpkg/scripts/buildsystems/vcpkg.cmake" CACHE STRING "")
+# --- CONFIGURAZIONE CROSS-PLATFORM VCPKG ---
+# Questo blocco rileva il sistema operativo e imposta i percorsi corretti
+if(WIN32)
+    # Percorso per Windows (Assicurati che sia questo il tuo percorso)
+    set(VCPKG_ROOT "C:/VCPKG/vcpkg")
+    set(VCPKG_TRIPLET "x64-windows")
+else()
+    # Percorso per Linux (Fedora)
+    set(VCPKG_ROOT "$ENV{HOME}/dev/vcpkg")
+    set(VCPKG_TRIPLET "x64-linux")
+endif()
 
-# Aiutiamo CMake 4.2 a trovare i file di configurazione di vcpkg
-list(APPEND CMAKE_PREFIX_PATH "$ENV{HOME}/dev/vcpkg/installed/x64-linux")
+# Impostazione del Toolchain (Deve stare PRIMA del comando project)
+set(VCPKG_MANIFEST_MODE OFF)
+set(CMAKE_TOOLCHAIN_FILE "${VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake" CACHE STRING "")
+
+# Aiutiamo CMake a trovare i pacchetti nel triplet corretto
+list(APPEND CMAKE_PREFIX_PATH "${VCPKG_ROOT}/installed/${VCPKG_TRIPLET}")
 
 project(TracciaFinanze)
 
+# Standard C++ moderno
 set(CMAKE_CXX_STANDARD 26)
 
-# --- Ricerca Pacchetti ---
+
+# --- RICERCA PACCHETTI ---
 find_package(SDL2 REQUIRED)
 find_package(OpenGL REQUIRED)
 find_package(nlohmann_json CONFIG REQUIRED)
 
-# Proviamo prima la modalità moderna CONFIG, se fallisce usiamo quella classica
+# Ricerca Boost (proviamo prima la modalità Config, poi quella classica)
 find_package(Boost CONFIG QUIET COMPONENTS uuid)
 if(NOT Boost_FOUND)
     find_package(Boost REQUIRED COMPONENTS uuid)
 endif()
 
-
-
+# --- CONFIGURAZIONE IMGUI ---
 set(IMGUI_DIR ${CMAKE_SOURCE_DIR}/imgui)
 
 set(IMGUI_SOURCES
@@ -33,6 +46,10 @@ set(IMGUI_SOURCES
         ${IMGUI_DIR}/imgui_widgets.cpp
         ${IMGUI_DIR}/backends/imgui_impl_sdl2.cpp
         ${IMGUI_DIR}/backends/imgui_impl_opengl3.cpp
+)
+
+# --- SORGENTI DEL PROGETTO ---
+set(CORE_SOURCES
         Core/Window.cpp
         Core/Window.h
         Core/Application.cpp
@@ -55,20 +72,25 @@ set(IMGUI_SOURCES
         Core/Components/SingleExpenseView.h
 )
 
-add_executable(TracciaFinanze
+# --- ESEGUIBILE ---
+add_executable(${PROJECT_NAME}
         main.cpp
         ${IMGUI_SOURCES}
+        ${CORE_SOURCES}
 )
 
+# Definizioni per SDL
 target_compile_definitions(${PROJECT_NAME} PRIVATE SDL_MAIN_HANDLED)
 
+# --- INCLUDE DIRECTORIES ---
 target_include_directories(${PROJECT_NAME} PRIVATE
+        ${CMAKE_SOURCE_DIR}
         ${IMGUI_DIR}
         ${IMGUI_DIR}/backends
-        # Non serve Boost_INCLUDE_DIRS se linki Boost::boost
+        Core
 )
 
-# --- Link ---
+# --- LINK LIBRARIES ---
 target_link_libraries(${PROJECT_NAME} PRIVATE
         SDL2::SDL2
         OpenGL::GL

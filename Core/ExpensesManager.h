@@ -15,6 +15,7 @@
 
 using json = nlohmann::json;
 using namespace boost;
+namespace fs = std::filesystem;
 
 enum ExpenseType{
     None,
@@ -72,9 +73,9 @@ public:
     
     [[nodiscard]] static ExpensesManager& Get() {return *s_Instance;}
 
-    std::filesystem::path FilePath = "Spese/spese.json";
-
 private:
+    fs::path GetDocumentsPath();
+    
     static ExpensesManager *s_Instance;
     std::vector<Expense> m_Expenses;
     uuids::random_generator m_Gen;

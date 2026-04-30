@@ -15,11 +15,23 @@ void ExpensesView::OnUIUpdate() {
     Component::OnUIUpdate();
 
     ImGuiDraw("Vista Spese", [this] {
-        for (const std::vector<Expense> expenses = m_ExpenseManager->LoadFromJSON(); const Expense& e : expenses)
-        {
-            SingleExpenseView sev(e);
-            sev.Draw();
-            ImGui::NewLine();
-        }
-    });
+            const std::vector<Expense> expenses = m_ExpenseManager->LoadFromJSON();
+        
+            float windowWidth = ImGui::GetContentRegionAvail().x;
+            int columnCount = (int)(windowWidth / 260.0f); // 350px + 10px di spazio
+            if (columnCount < 1) columnCount = 2;
+
+            if (ImGui::BeginTable("ExpensesGrid", columnCount, ImGuiTableFlags_None)) 
+            {
+                for (const Expense& e : expenses) 
+                {
+                    ImGui::TableNextColumn(); // Passa alla cella successiva (o riga successiva se la riga è piena)
+                
+                    SingleExpenseView sev(e);
+                    sev.Draw();
+                    ImGui::Dummy(ImVec2(0.0f, 20.0f));
+                }
+                ImGui::EndTable();
+            }
+        });
 }

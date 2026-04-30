@@ -90,7 +90,16 @@ void AddExpenseComponent::OnUIUpdate()
             if (HasErrors)
                 ImGui::BeginDisabled();
 
-            Expense e{ExpenseName, LocationName, ThingsBought, Amount, Year, Month, Day, SelectedType};
+            Expense e;
+            e.ExpenseName = ExpenseName;
+            e.Location = LocationName;
+            e.ThingsBought = ThingsBought;
+            e.Amount = Amount;
+            e.Year = Year;
+            e.Month = Month;
+            e.Day = Day;
+            e.Type = SelectedType;
+            
             ImGui::NewLine();
             if (ImGui::Button("Aggiungi", ImVec2(200, 0))) {
                 ExpensesManager::Get().AddExpense(e);

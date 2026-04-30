@@ -6,7 +6,15 @@
 #define TRACCIAFINANZE_EXPENSESMANAGER_H
 #include <filesystem>
 #include <string>
+#include <utility>
 #include <vector>
+#include <nlohmann/json_fwd.hpp>
+#include <boost/uuid/uuid.hpp>            // Struttura dati uuid
+#include <boost/uuid/uuid_generators.hpp> // Generatori (random, name-based, ecc.)
+#include <boost/uuid/uuid_io.hpp>
+
+using json = nlohmann::json;
+using namespace boost;
 
 enum ExpenseType{
     None,
@@ -16,19 +24,31 @@ enum ExpenseType{
 };
 
 struct Expense {
+    Expense()
+    {
+        static uuids::random_generator gen;
+        UUID = uuids::to_string(gen());
+    }
+
     std::string ExpenseName;
     std::string Location;
     std::string ThingsBought;
-    float Amount;
-    int Year, Month, Day;
-    ExpenseType Type;
+    float Amount{};
+    int Year{}, Month{}, Day{};
+    ExpenseType Type{};
 
-    // The compiler needs this to use std::find
+    const std::string& GetUUID() {return UUID;}
+    
     bool operator==(const Expense& other) const {
-        return std::tie(ExpenseName, Location, ThingsBought, Amount, Year, Month, Day, Type) ==
-               std::tie(other.ExpenseName, other.Location, other.ThingsBought, other.Amount,
-                        other.Year, other.Month, other.Day, other.Type);
+        return UUID == other.UUID;
     }
+    
+private:
+    
+    friend void to_json(nlohmann::json& j, const Expense& e);
+    friend void from_json(const nlohmann::json& j, Expense& e);
+    
+    std::string UUID;
 };
 
 inline static const char* ExpenseTypeLabels[] = {
@@ -48,6 +68,8 @@ public:
     void SaveToJSON();
     std::vector<Expense> LoadFromJSON();
 
+    std::string GetStringUUID();    
+    
     [[nodiscard]] static ExpensesManager& Get() {return *s_Instance;}
 
     std::filesystem::path FilePath = "Spese/spese.json";
@@ -55,7 +77,9 @@ public:
 private:
     static ExpensesManager *s_Instance;
     std::vector<Expense> m_Expenses;
+    uuids::random_generator m_Gen;
 };
+
 
 
 #endif //TRACCIAFINANZE_EXPENSESMANAGER_H

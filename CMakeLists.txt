@@ -1,12 +1,28 @@
-﻿cmake_minimum_required(VERSION 4.2)
-set(VCPKG_MANIFEST_MODE ON)
+﻿cmake_minimum_required(VERSION 3.22)
+
+# Forza il toolchain PRIMA di project
+set(VCPKG_MANIFEST_MODE OFF)
+set(CMAKE_TOOLCHAIN_FILE "$ENV{HOME}/dev/vcpkg/scripts/buildsystems/vcpkg.cmake" CACHE STRING "")
+
+# Aiutiamo CMake 4.2 a trovare i file di configurazione di vcpkg
+list(APPEND CMAKE_PREFIX_PATH "$ENV{HOME}/dev/vcpkg/installed/x64-linux")
+
 project(TracciaFinanze)
 
 set(CMAKE_CXX_STANDARD 26)
 
+# --- Ricerca Pacchetti ---
 find_package(SDL2 REQUIRED)
 find_package(OpenGL REQUIRED)
 find_package(nlohmann_json CONFIG REQUIRED)
+
+# Proviamo prima la modalità moderna CONFIG, se fallisce usiamo quella classica
+find_package(Boost CONFIG QUIET COMPONENTS uuid)
+if(NOT Boost_FOUND)
+    find_package(Boost REQUIRED COMPONENTS uuid)
+endif()
+
+
 
 set(IMGUI_DIR ${CMAKE_SOURCE_DIR}/imgui)
 
@@ -47,14 +63,16 @@ add_executable(TracciaFinanze
 target_compile_definitions(${PROJECT_NAME} PRIVATE SDL_MAIN_HANDLED)
 
 target_include_directories(${PROJECT_NAME} PRIVATE
-        ${IMGUI_DIR}              # ← imgui.h, imgui_internal.h ecc.
-        ${IMGUI_DIR}/backends     # ← imgui_impl_sdl2.h, imgui_impl_opengl3.h
-        ${SDL2_INCLUDE_DIRS}      # ← SDL.h ecc.
+        ${IMGUI_DIR}
+        ${IMGUI_DIR}/backends
+        # Non serve Boost_INCLUDE_DIRS se linki Boost::boost
 )
 
 # --- Link ---
 target_link_libraries(${PROJECT_NAME} PRIVATE
-        ${SDL2_LIBRARIES}
+        SDL2::SDL2
         OpenGL::GL
         nlohmann_json::nlohmann_json
+        Boost::boost
+        Boost::uuid
 )

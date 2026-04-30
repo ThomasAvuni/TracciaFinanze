@@ -2,7 +2,9 @@
   "name": "traccia-finanze",
   "version-string": "0.1.0",
   "dependencies": [
+    "sdl2",
+    "opengl",
     "nlohmann-json",
-    "sdl2"
+    "boost-uuid"
   ]
 }

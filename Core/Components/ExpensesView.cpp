@@ -19,6 +19,7 @@ void ExpensesView::OnUIUpdate() {
         {
             SingleExpenseView sev(e);
             sev.Draw();
+            ImGui::NewLine();
         }
     });
 }

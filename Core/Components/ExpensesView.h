@@ -7,6 +7,7 @@
 #include "../Component.h"
 
 
+struct Expense;
 class ExpensesManager;
 
 class ExpensesView : public Component

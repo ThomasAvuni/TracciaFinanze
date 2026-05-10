@@ -50,6 +50,21 @@ void ExpensesManager::RemoveExpense(const Expense& expense) {
     }
 }
 
+void ExpensesManager::EditExpense(const Expense& expense, const Expense& newExpense)
+{
+    auto it = std::find(m_Expenses.begin(), m_Expenses.end(), expense);
+    if (it != m_Expenses.end()) {
+        it->ExpenseName = expense.ExpenseName;
+        it->Location = expense.Location;
+        it->ThingsBought = expense.ThingsBought;
+        it->Amount = expense.Amount;
+        it->Type = expense.Type;
+        it->Day = expense.Day;
+        it->Month = expense.Month;
+        it->Year = expense.Year;
+    }
+}
+
 void ExpensesManager::SaveToJSON() {
     fs::path filePath = GetDocumentsPath() / "Spese.json";
     std::ofstream file(filePath); 

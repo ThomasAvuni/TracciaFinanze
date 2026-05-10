@@ -36,6 +36,20 @@ void ExpensesView::OnUIUpdate() {
         ImGui::SameLine();
         
         if (ImGui::InputTextWithHint("##Search", "Cerca per luogo...", searchBuf, sizeof(searchBuf))) { }
+
+        ImGui::Text("Categoria");
+        ImGui::SetNextItemWidth(200);
+        static ExpenseType SelectedType = None;
+        if (ImGui::BeginCombo("##Categoria", ExpenseTypeLabels[static_cast<int>(SelectedType)])) {
+            for (int i = 0; i < IM_ARRAYSIZE(ExpenseTypeLabels); i++) {
+                bool selected = (static_cast<int>(SelectedType) == i);
+                if (ImGui::Selectable(ExpenseTypeLabels[i], selected))
+                    SelectedType = static_cast<ExpenseType>(i);
+                else
+                    ImGui::SetItemDefaultFocus();
+            }
+            ImGui::EndCombo();
+        }
         
         ImGui::PopStyleVar(2);
         ImGui::PopItemWidth();
@@ -49,9 +63,14 @@ void ExpensesView::OnUIUpdate() {
         if (ImGui::BeginTable("ExpensesGrid", columnCount, ImGuiTableFlags_NoSavedSettings)) 
         {
             std::string searchStr = str_tolower(searchBuf);
-
             for (const Expense& e : expenses) 
             {
+                if (SelectedType != None)
+                {
+                    if (e.Type != SelectedType)
+                        continue;
+                }
+                
                 if (!searchStr.empty()) {
                     if (str_tolower(e.Location).find(searchStr) == std::string::npos) {
                         continue;

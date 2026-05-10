@@ -65,7 +65,8 @@ public:
 
     void AddExpense(Expense& expense);
     void RemoveExpense(const Expense& expense);
-
+    void EditExpense(const Expense& expense, const Expense& newExpense);
+    
     void SaveToJSON();
     std::vector<Expense> LoadFromJSON();
 
